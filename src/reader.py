@@ -11,6 +11,10 @@ from src.config import ARGS
 
 
 class WebName(object):
+    '''
+    Many people have the same name.
+    WebName is a class, holding the name and several people who has this name.
+    '''
     def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
         super(WebName, self).__init__()
         self._name = name
@@ -39,7 +43,9 @@ class WebName(object):
         self._read_doc()
         self._read_desc()
         self._read_gold()
+        self._discard()
 
+    def _discard(self):
         for i, doc in enumerate(self.all_docs):
             if doc not in self.discarded:
                 self.doc_files.append(self.all_doc_files[i])
@@ -127,6 +133,12 @@ class TestWebName(WebName):
         super(TestWebName, self).__init__(name, doc_dir, desc_dir, gold_dir,
                                           rank_as_int)
 
+    def _discard(self):
+        for i, doc in enumerate(self.all_docs):
+            self.doc_files.append(self.all_doc_files[i])
+            self.docs.append(doc)
+            self.texts.append(self.all_texts[i])
+
     def _parse_doc_id(self, path):
         '''
         e.g.
@@ -139,6 +151,9 @@ class TestWebName(WebName):
 
 
 class DataSet(object):
+    '''
+    DataSet: contains many names and each name has several people.
+    '''
     def __init__(self,
                  doc_dir, desc_dir, gold_dir,
                  rank_as_int=True,

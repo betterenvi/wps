@@ -11,17 +11,19 @@ from src.reader import (
 )
 
 from src.feature import FeatureCollector
-from src import util
+
 
 def main():
-    # tr_set = TrainSet()
-    print(ARGS.ts_doc_dir)
-    print(os.listdir(ARGS.ts_doc_dir))
+    # create one dataset with default args
+    # one dataset contains many names and each name has several people.
+    # ts_set = TrainSet()  # not work now due to encoding
     ts_set = TestSet()
-    tr_set = ts_set
-    print(tr_set.names)
 
-    fc = FeatureCollector(tr_set.web_names[0])
+    # print names in the dataset
+    print(ts_set.names)
+
+    # calculate features for the first name in the dataset
+    fc = FeatureCollector(ts_set.web_names[0])
     print(fc.get_features())
     print(fc.get_similarity())
 
