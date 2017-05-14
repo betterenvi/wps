@@ -5,6 +5,12 @@ import codecs
 from bs4 import BeautifulSoup
 
 
+def read_html(filename):
+    with codecs.open(filename, 'r', 'utf-8') as fin:
+        html = fin.read()
+        return html
+
+
 def clean_html(html):
     soup = BeautifulSoup(html)
     # kill all script and style elements
@@ -15,10 +21,9 @@ def clean_html(html):
 
 
 def read_clean_html(filename):
-    with codecs.open(filename, 'r', 'utf-8') as fin:
-        html = fin.read()
-        text = clean_html(html)
-        return text
+    html = read_html(filename)
+    text = clean_html(html)
+    return text
 
 
 def walkdir(rootdir, extension='.txt'):
