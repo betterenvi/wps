@@ -16,6 +16,31 @@ parser.add_argument(
     default='./WePS2_test_data/data/test',
     help='Direcotry containning test data'
 )
+parser.add_argument(
+    '--tfidf_max_features',
+    type=int,
+    default=2000,
+    help=''
+)
+parser.add_argument(
+    '--tfidf_min_df',
+    type=int,
+    default=1,
+    help=''
+)
+parser.add_argument(
+    '--tfidf_min_ngram_range',
+    type=int,
+    default=1,
+    help=''
+)
+parser.add_argument(
+    '--tfidf_max_ngram_range',
+    type=int,
+    default=2,
+    help=''
+)
+
 ARGS, unknown = parser.parse_known_args(sys.argv[1:])
 
 ARGS.tr_doc_dir = os.path.join(ARGS.tr_dir, 'web_pages')

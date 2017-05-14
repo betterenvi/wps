@@ -36,10 +36,12 @@ class FeatureCollector(object):
         self._features = pd.concat([self._features, features], axis=1)
 
     def _get_tfidf(self):
-        self._tfidf_vectorizer = TfidfVectorizer(min_df=3,
-                                                 max_features=None,
-                                                 ngram_range=(1, 2),
-                                                 stop_words='english')
+        self._tfidf_vectorizer = TfidfVectorizer(
+            min_df=ARGS.tfidf_min_df,
+            max_features=ARGS.tfidf_max_features,
+            ngram_range=(ARGS.tfidf_min_ngram_range,
+                         ARGS.tfidf_max_ngram_range),
+            stop_words='english')
 
         tfv = self._tfidf_vectorizer
         tfv.fit(self._web_name.texts)
