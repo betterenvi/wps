@@ -14,7 +14,8 @@ from src.feature import FeatureCollector
 
 
 def main():
-    # create one dataset with default args
+    # you may create one small test dataset to test your code.
+    # create one dataset with default args.
     # one dataset contains many names and each name has several people.
     # tr_set = TrainSet()  # not work now due to encoding
     ts_set = TestSet()
