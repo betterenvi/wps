@@ -57,6 +57,3 @@ class FeatureCollector(object):
             return cosine_similarity(self._features)
         else:
             raise ValueError('Unsupported similarity')
-
-
-

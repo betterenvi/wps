@@ -16,7 +16,7 @@ from src.feature import FeatureCollector
 def main():
     # create one dataset with default args
     # one dataset contains many names and each name has several people.
-    # ts_set = TrainSet()  # not work now due to encoding
+    # tr_set = TrainSet()  # not work now due to encoding
     ts_set = TestSet()
 
     # print names in the dataset
@@ -25,7 +25,7 @@ def main():
     # calculate features for the first name in the dataset
     fc = FeatureCollector(ts_set.web_names[0])
     print(fc.get_features())
-    print(fc.get_similarity())
+    print(fc.get_similarity(method='cosine'))
 
 
 if __name__ == '__main__':
