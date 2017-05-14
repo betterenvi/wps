@@ -28,12 +28,14 @@ class FeatureCollector(object):
         self._calculate()
 
     def _calculate(self):
-        self._calc_tfidf()
+        features_list = []
+        features_list.append(self._get_tfidf())
+        self._features = pd.concat(features_list, axis=1)
 
     def _add_features(self, features):
         self._features = pd.concat([self._features, features], axis=1)
 
-    def _calc_tfidf(self):
+    def _get_tfidf(self):
         self._tfidf_vectorizer = TfidfVectorizer(min_df=3,
                                                  max_features=None,
                                                  ngram_range=(1, 2),
@@ -47,7 +49,7 @@ class FeatureCollector(object):
             index=self._features.index,
             columns=['tfidf_' + name for name in feature_names]
         )
-        self._add_features(tfidf)
+        return tfidf
 
     def get_features(self):
         return self._features
