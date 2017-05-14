@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import re
@@ -10,33 +11,59 @@ from src.config import ARGS
 
 
 class WebName(object):
-    def __init__(self, name, web_dir, desc_dir, gold_dir, rank_as_int=True):
+    def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
         super(WebName, self).__init__()
         self._name = name
-        self._web_dir = web_dir
+        self._doc_dir = doc_dir
         self._desc_dir = desc_dir
         self._gold_dir = gold_dir
         self._rank_as_int = rank_as_int
         self.entities = collections.defaultdict(list)
-        self.cluster = {}
+        # all_* contain those discarded
+        self.all_doc_files = list()
+        self.all_docs = list()
+        self.all_texts = list()
         self.discarded = list()
+        # don't consider discarded
+        self.doc_files = list()
+        self.docs = list()
+        self.texts = list()
+        self.doc2entity = {}
         self._read_data()
 
+    @property
+    def num_docs(self):
+        return len(self.docs)
+
     def _read_data(self):
-        self._read_web()
+        self._read_doc()
         self._read_desc()
         self._read_gold()
 
-    def _parse_web_id(self, path):
+        for i, doc in enumerate(self.all_docs):
+            if doc not in self.discarded:
+                self.doc_files.append(self.all_doc_files[i])
+                self.docs.append(doc)
+                self.texts.append(self.all_texts[i])
+
+    def _parse_rank(self, rank):
+        if self._rank_as_int:
+            rank = int(rank)
+        return rank
+
+    def _parse_doc_id(self, path):
         '''
         just a placeholder, should be implemented in sub class
         '''
-        return 1 if self._rank_as_int else '1'
+        return self._parse_rank('1')
 
-    def _read_web(self):
-        self._webs = util.walkdir(self._web_dir, ARGS.web_ext)
-        self._web_ids = [self._parse_web_id(w) for w in self._webs]
-        self._texts = [util.read_clean_html(w) for w in self._webs]
+    def _find_docs(self):
+        self.all_doc_files = util.walkdir(self._doc_dir, ARGS.doc_ext)
+
+    def _read_doc(self):
+        self._find_docs()
+        self.all_docs = [self._parse_doc_id(w) for w in self.all_doc_files]
+        self.all_texts = [util.read_clean_html(w) for w in self.all_doc_files]
 
     def _read_desc(self):
         pass
@@ -47,81 +74,78 @@ class WebName(object):
         if str(soup) == '<entity':
             entity_id = soup.attrs['id']
             for ch in list(soup.children):
-                rank = ch.attrs['rank']
-                if self._rank_as_int:
-                    rank = int(rank)
+                rank = self._parse_rank(ch.attrs['rank'])
                 self.entities[entity_id].append(rank)
         elif str(soup) == '<discarded':
             for ch in list(soup.children):
-                self.discarded.append(ch.attrs['rank'])
+                rank = self._parse_rank(ch.attrs['rank'])
+                self.discarded.append(rank)
         else:
             for ch in list(soup.children):
-                self._parse_gold(self, ch)
+                self._parse_gold(ch)
 
     def _read_gold(self):
         path = os.path.join(self._gold_dir, self._name + ARGS.gold_ext)
-        html = util.read_html(path)
+        html = util.read_file(path)
         soup = BeautifulSoup(html)
         self._parse_gold(soup)
         for entity_id in self.entities.keys():
             for rank in self.entities[entity_id]:
-                self.cluster[rank] = entity_id
+                self.doc2entity[rank] = entity_id
 
 
 class TrainWebName(WebName):
-    def __init__(self,
-                 name,
-                 web_dir=ARGS.tr_web_dir,
-                 desc_dir=ARGS.tr_desc_dir,
-                 gold_dir=ARGS.tr_gold_dir,
-                 rank_as_int=True):
+    def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
+        super(TrainWebName, self).__init__(name, doc_dir, desc_dir, gold_dir,
+                                           rank_as_int)
 
-        super(TrainWebName, self).__init__(name,
-                                        web_dir, desc_dir, gold_dir,
-                                        rank_as_int)
+    def _find_docs(self):
+        all_doc_files = util.walkdir(self._doc_dir, ARGS.doc_ext)
+        self.all_doc_files = []
+        for doc in all_doc_files:
+            if doc.endswith('index.html'):
+                self.all_doc_files.append(doc)
 
-    def _parse_web_id(self, path):
+    def _parse_doc_id(self, path):
         '''
         e.g.
         input: weps2007_data_1.1/traininig/web_pages/Abby_Watkins/raw/001/index.html
         return: 1
         '''
         parent_dir = os.path.basename(os.path.dirname(path))
-        rank = int(parent_dir)
-        return rank if self._rank_as_int else str(rank)
+        try:
+            rank = int(parent_dir)
+            return rank if self._rank_as_int else str(rank)
+        except Exception as e:
+            print('_parse_doc_id:', path, parent_dir)
+            print(e)
 
 
 class TestWebName(WebName):
-    def __init__(self,
-                 name,
-                 web_dir=ARGS.ts_web_dir,
-                 desc_dir=ARGS.ts_desc_dir,
-                 gold_dir=ARGS.ts_gold_dir,
-                 rank_as_int=True):
+    def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
 
-        super(TestWebName, self).__init__(name,
-                                        web_dir, desc_dir, gold_dir,
-                                        rank_as_int)
+        super(TestWebName, self).__init__(name, doc_dir, desc_dir, gold_dir,
+                                          rank_as_int)
 
-    def _parse_web_id(self, path):
+    def _parse_doc_id(self, path):
         '''
         e.g.
         input: WePS2_test_data/data/test/web_pages/AMANDA_LENTZ/001.html
         return: 1
         '''
         basename = os.path.basename(path)
-        rank = int(basename[:(-len(ARGS.web_ext))])
+        rank = int(basename[:(-len(ARGS.doc_ext))])
         return rank if self._rank_as_int else str(rank)
 
 
 class DataSet(object):
     def __init__(self,
-                 web_dir, desc_dir, gold_dir,
+                 doc_dir, desc_dir, gold_dir,
                  rank_as_int=True,
                  WebNameClass=TrainWebName):
         super(DataSet, self).__init__()
         self._WebNameClass = WebNameClass
-        self._web_dir = web_dir
+        self._doc_dir = doc_dir
         self._desc_dir = desc_dir
         self._gold_dir = gold_dir
         self._rank_as_int = rank_as_int
@@ -129,10 +153,12 @@ class DataSet(object):
 
     def _build(self):
         WebNameClass = self._WebNameClass
-        self.names = os.listdir(self._web_dir)
+        self.names = os.listdir(self._doc_dir)
+        self.num_names = len(self.names)
         self.web_names = []
         for name in self.names:
-            web_name = WebNameClass(name, self._web_dir,
+            web_name = WebNameClass(name,
+                                    os.path.join(self._doc_dir, name),
                                     self._desc_dir, self._gold_dir,
                                     self._rank_as_int)
             self.web_names.append(web_name)
@@ -140,23 +166,23 @@ class DataSet(object):
 
 class TrainSet(DataSet):
     def __init__(self,
-                 web_dir=ARGS.tr_web_dir,
+                 doc_dir=ARGS.tr_doc_dir,
                  desc_dir=ARGS.tr_desc_dir,
                  gold_dir=ARGS.tr_gold_dir,
                  rank_as_int=True,
                  WebNameClass=TrainWebName):
 
-        super(TrainSet, self).__init__(web_dir, desc_dir, gold_dir,
+        super(TrainSet, self).__init__(doc_dir, desc_dir, gold_dir,
                                        rank_as_int, WebNameClass)
 
 
 class TestSet(DataSet):
     def __init__(self,
-                 web_dir=ARGS.ts_web_dir,
+                 doc_dir=ARGS.ts_doc_dir,
                  desc_dir=ARGS.ts_desc_dir,
                  gold_dir=ARGS.ts_gold_dir,
                  rank_as_int=True,
                  WebNameClass=TestWebName):
 
-        super(TestSet, self).__init__(web_dir, desc_dir, gold_dir,
+        super(TestSet, self).__init__(doc_dir, desc_dir, gold_dir,
                                       rank_as_int, WebNameClass)

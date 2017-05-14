@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import re
@@ -5,10 +6,17 @@ import codecs
 from bs4 import BeautifulSoup
 
 
-def read_html(filename):
-    with codecs.open(filename, 'r', 'utf-8') as fin:
-        html = fin.read()
-        return html
+def read_file(filename):
+    try:
+        with codecs.open(filename, 'r', 'utf-8') as fin:
+            print(filename)
+            content = fin.read()
+            return content
+    except Exception as e:
+        with open(filename, 'r') as fin:
+            print(filename)
+            content = fin.read()
+            return content
 
 
 def clean_html(html):
@@ -21,7 +29,7 @@ def clean_html(html):
 
 
 def read_clean_html(filename):
-    html = read_html(filename)
+    html = read_file(filename)
     text = clean_html(html)
     return text
 

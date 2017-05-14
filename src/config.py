@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import os
 import sys
 import argparse
 
@@ -16,14 +18,14 @@ parser.add_argument(
 )
 ARGS, unknown = parser.parse_known_args(sys.argv[1:])
 
-ARGS.tr_web_dir = os.path.join(ARGS.tr_dir, 'web_pages')
+ARGS.tr_doc_dir = os.path.join(ARGS.tr_dir, 'web_pages')
 ARGS.tr_desc_dir = os.path.join(ARGS.tr_dir, 'description_files')
 ARGS.tr_gold_dir = os.path.join(ARGS.tr_dir, 'truth_files')
-ARGS.ts_web_dir = os.path.join(ARGS.ts_dir, 'web_pages')
+ARGS.ts_doc_dir = os.path.join(ARGS.ts_dir, 'web_pages')
 ARGS.ts_desc_dir = os.path.join(ARGS.ts_dir, 'metadata')
 ARGS.ts_gold_dir = os.path.join(ARGS.ts_dir, 'gold_standard')
 
-ARGS.web_ext = '.html'
-ARGS.web_basename = 'index.html'
+ARGS.doc_ext = '.html'
+ARGS.doc_basename = 'index.html'
 ARGS.desc_ext = '.xml'
 ARGS.gold_ext = '.xml'
