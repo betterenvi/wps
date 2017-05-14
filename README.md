@@ -13,9 +13,13 @@
     └── util.py             # define some functions
 ```
 
+#### API Usage
+
+Please refer to `run.py`.
+
 ## How to run
 
-- Ensure that you terminal is in the right directory, i.e. src's parent directory
+- Ensure that you terminal is in the right directory, i.e. `src`'s parent directory
 - Run the following command
 
 ```sh
