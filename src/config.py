@@ -53,4 +53,5 @@ ARGS.ts_gold_dir = os.path.join(ARGS.ts_dir, 'gold_standard')
 ARGS.doc_ext = '.html'
 ARGS.doc_basename = 'index.html'
 ARGS.desc_ext = '.xml'
-ARGS.gold_ext = '.xml'
+ARGS.tr_gold_ext = '.clust.xml'
+ARGS.ts_gold_ext = '.xml'

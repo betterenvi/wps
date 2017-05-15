@@ -15,13 +15,15 @@ class WebName(object):
     Many people have the same name.
     WebName is a class, holding the name and several people who has this name.
     '''
-    def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
+    def __init__(self, name, doc_dir, desc_dir, gold_dir,
+                 rank_as_int=True, gold_ext='.xml'):
         super(WebName, self).__init__()
         self._name = name
         self._doc_dir = doc_dir
         self._desc_dir = desc_dir
         self._gold_dir = gold_dir
         self._rank_as_int = rank_as_int
+        self._gold_ext = gold_ext
         self.entities = collections.defaultdict(list)
         # all_* contain those discarded
         self.all_doc_files = list()
@@ -101,7 +103,7 @@ class WebName(object):
                 self._parse_gold(ch)
 
     def _read_gold(self):
-        path = os.path.join(self._gold_dir, self._name + ARGS.gold_ext)
+        path = os.path.join(self._gold_dir, self._name + self._gold_ext)
         html = util.read_file(path)
         soup = BeautifulSoup(html, 'lxml')
         self._parse_gold(soup)
@@ -113,7 +115,7 @@ class WebName(object):
 class TrainWebName(WebName):
     def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
         super(TrainWebName, self).__init__(name, doc_dir, desc_dir, gold_dir,
-                                           rank_as_int)
+                                           rank_as_int, gold_ext=ARGS.tr_gold_ext)
 
     def _find_docs(self):
         all_doc_files = util.walkdir(self._doc_dir, ARGS.doc_ext)
@@ -141,7 +143,7 @@ class TestWebName(WebName):
     def __init__(self, name, doc_dir, desc_dir, gold_dir, rank_as_int=True):
 
         super(TestWebName, self).__init__(name, doc_dir, desc_dir, gold_dir,
-                                          rank_as_int)
+                                          rank_as_int, gold_ext=ARGS.ts_gold_ext)
 
     def _discard(self):
         for i, doc in enumerate(self.all_docs):
