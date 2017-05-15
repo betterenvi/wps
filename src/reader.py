@@ -33,6 +33,8 @@ class WebName(object):
         self.docs = list()
         self.texts = list()
         self.doc2entity = {}
+        #
+        self.available = True
         self._read_data()
 
     @property
@@ -40,10 +42,14 @@ class WebName(object):
         return len(self.docs)
 
     def _read_data(self):
-        self._read_doc()
-        self._read_desc()
-        self._read_gold()
-        self._discard()
+        try:
+            self._read_doc()
+            self._read_desc()
+            self._read_gold()
+            self._discard()
+        except Exception as e:
+            print('"{}" not available due to'.format(self._name), e)
+            self.available = False
 
     def _discard(self):
         for i, doc in enumerate(self.all_docs):
@@ -185,7 +191,8 @@ class DataSet(object):
                                     os.path.join(self._doc_dir, name),
                                     self._desc_dir, self._gold_dir,
                                     self._rank_as_int)
-            self.web_names.append(web_name)
+            if web_name.available:
+                self.web_names.append(web_name)
 
 
 class TrainSet(DataSet):
