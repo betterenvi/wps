@@ -7,20 +7,19 @@ from bs4 import BeautifulSoup
 
 
 def read_file(filename):
+    print(filename)
     try:
         with codecs.open(filename, 'r', 'utf-8') as fin:
-            print(filename)
             content = fin.read()
             return content
     except Exception as e:
         with open(filename, 'r') as fin:
-            print(filename)
             content = fin.read()
             return content
 
 
 def clean_html(html):
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'lxml')
     # kill all script and style elements
     for script in soup(["script", "style"]):
         script.extract()    # rip it out

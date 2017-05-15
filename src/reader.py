@@ -93,7 +93,7 @@ class WebName(object):
     def _read_gold(self):
         path = os.path.join(self._gold_dir, self._name + ARGS.gold_ext)
         html = util.read_file(path)
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'lxml')
         self._parse_gold(soup)
         for entity_id in self.entities.keys():
             for rank in self.entities[entity_id]:
@@ -156,6 +156,7 @@ class DataSet(object):
     '''
     def __init__(self,
                  doc_dir, desc_dir, gold_dir,
+                 names=None,
                  rank_as_int=True,
                  WebNameClass=TrainWebName):
         super(DataSet, self).__init__()
@@ -164,11 +165,15 @@ class DataSet(object):
         self._desc_dir = desc_dir
         self._gold_dir = gold_dir
         self._rank_as_int = rank_as_int
+        if names is None:
+            self.names = os.listdir(self._doc_dir)
+        else:
+            assert type(names) == list
+            self.names = names
         self._build()
 
     def _build(self):
         WebNameClass = self._WebNameClass
-        self.names = os.listdir(self._doc_dir)
         self.num_names = len(self.names)
         self.web_names = []
         for name in self.names:
@@ -184,11 +189,12 @@ class TrainSet(DataSet):
                  doc_dir=ARGS.tr_doc_dir,
                  desc_dir=ARGS.tr_desc_dir,
                  gold_dir=ARGS.tr_gold_dir,
+                 names=None,
                  rank_as_int=True,
                  WebNameClass=TrainWebName):
 
         super(TrainSet, self).__init__(doc_dir, desc_dir, gold_dir,
-                                       rank_as_int, WebNameClass)
+                                       names, rank_as_int, WebNameClass)
 
 
 class TestSet(DataSet):
@@ -196,8 +202,9 @@ class TestSet(DataSet):
                  doc_dir=ARGS.ts_doc_dir,
                  desc_dir=ARGS.ts_desc_dir,
                  gold_dir=ARGS.ts_gold_dir,
+                 names=None,
                  rank_as_int=True,
                  WebNameClass=TestWebName):
 
         super(TestSet, self).__init__(doc_dir, desc_dir, gold_dir,
-                                      rank_as_int, WebNameClass)
+                                      names, rank_as_int, WebNameClass)

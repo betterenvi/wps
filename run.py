@@ -18,7 +18,8 @@ def main():
     # create one dataset with default args.
     # one dataset contains many names and each name has several people.
     # tr_set = TrainSet()  # not work now due to encoding
-    ts_set = TestSet()
+    # ts_set = TestSet()   # read whole test set
+    ts_set = TestSet(names=['TOM_LINTON'])  # or only read given names
 
     # print names in the dataset
     print(ts_set.names)
