@@ -1,4 +1,4 @@
-# Web People Search
+# WPS
 
 ## Source Code
 ```
