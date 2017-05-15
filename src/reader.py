@@ -77,14 +77,18 @@ class WebName(object):
     def _parse_gold(self, soup):
         if not hasattr(soup, 'children'):
             return
-        if str(soup) == '<entity':
-            entity_id = soup.attrs['id']
+        if soup.name == 'entity':
+            entity_id = soup['id']
             for ch in list(soup.children):
-                rank = self._parse_rank(ch.attrs['rank'])
+                if ch.name != 'doc':
+                    continue
+                rank = self._parse_rank(ch['rank'])
                 self.entities[entity_id].append(rank)
-        elif str(soup) == '<discarded':
+        elif soup.name == 'discarded':
             for ch in list(soup.children):
-                rank = self._parse_rank(ch.attrs['rank'])
+                if ch.name != 'doc':
+                    continue
+                rank = self._parse_rank(ch['rank'])
                 self.discarded.append(rank)
         else:
             for ch in list(soup.children):

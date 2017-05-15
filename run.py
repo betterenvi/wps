@@ -25,7 +25,9 @@ def main():
     print(ts_set.names)
 
     # calculate features for the first name in the dataset
-    fc = FeatureCollector(ts_set.web_names[0])
+    wn = ts_set.web_names[0]
+    print(wn.entities)
+    fc = FeatureCollector(wn)
     print(fc.get_features())
     print(fc.get_similarity(method='cosine'))
 
