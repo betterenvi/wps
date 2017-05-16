@@ -36,6 +36,7 @@ class WebName(object):
         self.texts = list()
         self.doc2entity = {}
         #
+        self.doc_avails = []
         self.available = True
         self._read_data()
 
@@ -76,8 +77,19 @@ class WebName(object):
 
     def _read_doc(self):
         self._find_docs()
-        self.all_docs = [self._parse_doc_id(w) for w in self.all_doc_files]
-        self.all_texts = [util.read_clean_html(w) for w in self.all_doc_files]
+        for w in self.all_doc_files:
+            try:
+                tx = util.read_clean_html(w)
+                self.all_texts.append(tx)
+                self.doc_avails.append(True)
+            except Exception as e:
+                self.doc_avails.append(False)
+        tmp = []
+        for i, avil in enumerate(self.doc_avails):
+            if avil:
+                tmp.append(self.all_doc_files[i])
+                self.all_docs.append(self._parse_doc_id(self.all_doc_files[i]))
+        self.all_doc_files = tmp
 
     def _read_desc(self):
         pass
@@ -91,13 +103,15 @@ class WebName(object):
                 if ch.name != 'doc':
                     continue
                 rank = self._parse_rank(ch['rank'])
-                self.entities[entity_id].append(rank)
+                if rank in self.all_docs:
+                    self.entities[entity_id].append(rank)
         elif soup.name == 'discarded':
             for ch in list(soup.children):
                 if ch.name != 'doc':
                     continue
                 rank = self._parse_rank(ch['rank'])
-                self.discarded.append(rank)
+                if rank in self.all_docs:
+                    self.discarded.append(rank)
         else:
             for ch in list(soup.children):
                 self._parse_gold(ch)
@@ -178,23 +192,26 @@ class DataSet(object):
         self._gold_dir = gold_dir
         self._rank_as_int = rank_as_int
         if names is None:
-            self.names = os.listdir(self._doc_dir)
+            self.all_names = os.listdir(self._doc_dir)
         else:
             assert type(names) == list
-            self.names = names
+            self.all_names = names
         self._build()
 
     def _build(self):
         WebNameClass = self._WebNameClass
-        self.num_names = len(self.names)
         self.web_names = []
-        for name in self.names:
+        self.names = []
+        for name in self.all_names:
             web_name = WebNameClass(name,
                                     os.path.join(self._doc_dir, name),
                                     self._desc_dir, self._gold_dir,
                                     self._rank_as_int)
             if web_name.available:
                 self.web_names.append(web_name)
+                self.names.append(name)
+
+        self.num_names = len(self.names)
 
 
 class TrainSet(DataSet):

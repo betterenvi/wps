@@ -16,7 +16,9 @@ from src.feature import FeatureCollector
 def main():
     # create one dataset with default args.
     # one dataset contains many names and each name has several people.
-    # tr_set = TrainSet()  # drop some data due to encoding
+    tr_set = TrainSet()  # drop some data due to encoding
+    print(tr_set.names)
+    print(len(tr_set.names))
     # ts_set = TestSet()   # read whole test set
     ts_set = TestSet(names=['TOM_LINTON'])  # or only read given names
     tr_set = ts_set
