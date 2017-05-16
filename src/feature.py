@@ -31,7 +31,7 @@ class FeatureCollector(object):
 
     def _calculate(self):
         features_list = []
-        # features_list.append(self._get_tfidf())
+        features_list.append(self._get_tfidf())
         if ARGS.use_ne != 0:
             features_list.append(self._get_named_entity())
         self._features = pd.concat(features_list, axis=1)
