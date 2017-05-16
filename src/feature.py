@@ -72,6 +72,21 @@ class FeatureCollector(object):
             self._nes.append(ne)
             self._ne_types.append(ne_type)
 
+        ne_texts = [' '.join(ne) for ne in self._nes]
+        ne_tfv = TfidfVectorizer(
+            min_df=1,
+            max_features=2000,
+            ngram_range=(1, 1),
+            stop_words='english'
+        )
+        ne_tfv.fit(ne_texts)
+        ne_tfidf = pd.DataFrame(
+            ne_tfv.transform(ne_texts).todense(),
+            index=self._features.index,
+            columns=['ne_' + name for name in ne_tfv.get_feature_names()]
+        )
+        return ne_tfidf
+
         self._ne_counters = [collections.Counter(ne) for ne in self._nes]
         ne_sets = set()
         for ne in self._nes:
