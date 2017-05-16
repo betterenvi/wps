@@ -9,11 +9,11 @@ from bs4 import BeautifulSoup
 def read_file(filename):
     print(filename)
     try:
-        with open(filename, 'r') as fin:
+        with codecs.open(filename, 'r', 'utf-8') as fin:
             content = fin.read()
             return content
     except Exception as e:
-        with codecs.open(filename, 'r', 'utf-8') as fin:
+        with open(filename, 'r') as fin:
             content = fin.read()
             return content
 

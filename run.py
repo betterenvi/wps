@@ -14,13 +14,12 @@ from src.feature import FeatureCollector
 
 
 def main():
-    # you may create one small test dataset to test your code.
     # create one dataset with default args.
     # one dataset contains many names and each name has several people.
-    tr_set = TrainSet()  # not work now due to encoding
-    ts_set = TestSet()   # read whole test set
-    # ts_set = TestSet(names=['TOM_LINTON'])  # or only read given names
-
+    # tr_set = TrainSet()  # drop some data due to encoding
+    # ts_set = TestSet()   # read whole test set
+    ts_set = TestSet(names=['TOM_LINTON'])  # or only read given names
+    tr_set = ts_set
     # print names in the dataset
     print(ts_set.names)
 

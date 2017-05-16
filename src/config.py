@@ -40,7 +40,12 @@ parser.add_argument(
     default=2,
     help=''
 )
-
+parser.add_argument(
+    '--use_ne',
+    type=int, # 0 for False
+    default=1,
+    help='whether use named entity'
+)
 ARGS, unknown = parser.parse_known_args(sys.argv[1:])
 
 ARGS.tr_doc_dir = os.path.join(ARGS.tr_dir, 'web_pages')
